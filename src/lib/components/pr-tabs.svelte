@@ -5,6 +5,7 @@
 	import PrOverview from '$lib/components/pr-overview.svelte';
 	import type { SearchIssue } from '$lib/github';
 	import Button from './ui/button/button.svelte';
+	import Separator from './ui/separator/separator.svelte';
 
 	export let repoFullName: string;
 
@@ -32,7 +33,7 @@
 	}
 </script>
 
-<div class="flex size-full gap-6">
+<div class="flex size-full">
 	<Tabs.Root bind:value={activeTab} class="flex size-full flex-col items-center">
 		<Tabs.List>
 			<div class="mx-2">PRs:</div>
@@ -51,6 +52,7 @@
 				</Tabs.Trigger>
 			{/each}
 		</Tabs.List>
+		<Separator class="my-2" />
 		{#each tabs as tab}
 			<Tabs.Content value={tab.id} class="flex h-0 min-h-0 w-full flex-grow flex-col items-center">
 				{#if tab.pr}

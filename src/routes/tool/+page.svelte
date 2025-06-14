@@ -22,7 +22,7 @@
 	<div class="flex flex-grow flex-col">
 		<button
 			type="button"
-			class="absolute cursor-pointer border-none bg-transparent p-0 select-none"
+			class="absolute h-9 cursor-pointer border-none bg-transparent p-0 select-none"
 			on:click={() => (selectedRepo = null)}
 		>
 			<div class="flex items-center gap-2">

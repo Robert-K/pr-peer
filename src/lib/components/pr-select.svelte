@@ -3,6 +3,7 @@
 	import { searchPullRequests, type SearchIssue, timeAgo } from '$lib/github';
 	import { onMount } from 'svelte';
 	import Button from './ui/button/button.svelte';
+	import { getContrastColor } from '$lib/utils/color';
 
 	export let repoFullName: string = '';
 	export let selectedPr: SearchIssue | null = null;
@@ -12,23 +13,6 @@
 	let loading = false;
 
 	let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
-
-	function getContrastColor(hex: string) {
-		// Remove hash if present
-		hex = hex.replace('#', '');
-		if (hex.length === 3) {
-			hex = hex
-				.split('')
-				.map((x) => x + x)
-				.join('');
-		}
-		const r = parseInt(hex.substring(0, 2), 16);
-		const g = parseInt(hex.substring(2, 4), 16);
-		const b = parseInt(hex.substring(4, 6), 16);
-		// Calculate luminance
-		const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-		return luminance > 0.6 ? '#222' : '#fff';
-	}
 
 	onMount(async () => {
 		if (repoFullName) {
@@ -86,7 +70,7 @@
 			<Command.Group heading="Pull Requests">
 				{#each suggestions as pr}
 					<Command.Item class="flex flex-col items-start" onSelect={() => selectPr(pr)}>
-						<div class="flex flex-wrap items-center gap-2">
+						<div class="flex flex-wrap items-center gap-1">
 							<Button
 								class="h-6 font-mono font-bold hover:underline"
 								variant="secondary"
@@ -103,6 +87,9 @@
 								#{pr.number}
 							</Button>
 							<span class="font-semibold">{pr.title}</span>
+							<span class="ml-2 text-xs text-gray-500"
+								>{pr.created_at ? timeAgo(pr.created_at) : ''}</span
+							>
 						</div>
 						<div class="gap-2">
 							{#if pr.labels && pr.labels.length > 0}
