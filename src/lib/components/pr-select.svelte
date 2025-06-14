@@ -4,6 +4,7 @@
 	import { onMount } from 'svelte';
 	import Button from './ui/button/button.svelte';
 	import { getContrastColor } from '$lib/utils/color';
+	import SvelteMarkdown from 'svelte-markdown';
 
 	export let repoFullName: string = '';
 	export let selectedPr: SearchIssue | null = null;
@@ -86,7 +87,7 @@
 							>
 								#{pr.number}
 							</Button>
-							<span class="font-semibold">{pr.title}</span>
+							<div class="inline-block font-semibold"><SvelteMarkdown source={pr.title} /></div>
 							<span class="ml-2 text-xs text-gray-500"
 								>{pr.created_at ? timeAgo(pr.created_at) : ''}</span
 							>

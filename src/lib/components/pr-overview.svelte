@@ -6,12 +6,34 @@
 	import SvelteMarkdown from 'svelte-markdown';
 	import Card from './ui/card/card.svelte';
 	import { SparkleIcon } from '@lucide/svelte';
+	import { getChatResponseStreamed } from '$lib/openai';
+	import { onMount } from 'svelte';
+	import { type Writable } from 'svelte/store';
+	import type { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 
 	export let pr: SearchIssue;
 	export let repoFullName: string;
+
+	let aiSummary = '';
+	let aiSummaryStore: Writable<string>;
+
+	onMount(() => {
+		const prompt: ChatCompletionMessageParam = {
+			role: 'system',
+			content: `Your task is to summarize the following GitHub pull request in a maximum of 2-3 sentences for a developer:
+
+Title: ${pr.title}
+
+Body: ${pr.body || ''}`
+		};
+		aiSummaryStore = getChatResponseStreamed([prompt]);
+		aiSummaryStore.subscribe((val: string) => {
+			aiSummary = val;
+		});
+	});
 </script>
 
-<div class="flex flex-col gap-4 p-4">
+<div class="flex min-w-3xl flex-col gap-4 p-4">
 	<div class="flex flex-col gap-1">
 		<div>
 			<Button
@@ -25,7 +47,7 @@
 			>
 				#{pr.number}
 			</Button>
-			<span class="font-semibold">{pr.title}</span>
+			<div class="inline-block font-semibold"><SvelteMarkdown source={pr.title} /></div>
 			<span class="ml-2 text-xs text-gray-500">{pr.created_at ? timeAgo(pr.created_at) : ''}</span>
 		</div>
 		{#if pr.labels && pr.labels.length > 0}
@@ -43,17 +65,17 @@
 			</div>
 		{/if}
 	</div>
-	<Card class="p-0">
-		<div class="p-4">
-			<div class="absolute opacity-50">
-				<SparkleIcon size={24} />
+	<Card class="flex min-h-24 p-4">
+		{#if aiSummary}
+			<SvelteMarkdown source={aiSummary} />
+		{:else}
+			<div class="flex flex-grow animate-pulse items-center justify-center text-gray-500">
+				<SparkleIcon size={16} class="mr-2" />
+				<p class="italic">Generating summary...</p>
 			</div>
-			<div class="flex h-32 flex-col items-center justify-center">
-				<img src="/ai-summary.png" alt="AI Summary" class="h-full" />
-			</div>
-		</div>
+		{/if}
 	</Card>
-	<p class="mt-2 text-sm [&_a]:text-blue-600 [&_a]:underline dark:[&_a]:text-blue-400">
+	<p class="text-sm [&_a]:text-blue-600 [&_a]:underline dark:[&_a]:text-blue-400">
 		<SvelteMarkdown source={pr.body} />
 	</p>
 </div>

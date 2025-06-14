@@ -5,13 +5,16 @@
 	import type RepoSuggestion from '$lib/components/repo-select.svelte';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import PrTabs from '$lib/components/pr-tabs.svelte';
+	import { goto } from '$app/navigation';
 
 	let selectedRepo: RepoSuggestion | null = null;
 </script>
 
 <div class="flex flex-row justify-between">
 	<div class="flex h-12 w-24 flex-shrink-0 items-center">
-		<img src="/pr-peer.png" alt="Logo" class="-ml-2" />
+		<button onclick={() => goto('/')} class="cursor-pointer">
+			<img src="/pr-peer.png" alt="Logo" class="-ml-2" />
+		</button>
 	</div>
 	<DarkModeToggle />
 </div>
@@ -23,7 +26,7 @@
 		<button
 			type="button"
 			class="absolute h-9 cursor-pointer border-none bg-transparent p-0 select-none"
-			on:click={() => (selectedRepo = null)}
+			onclick={() => (selectedRepo = null)}
 		>
 			<div class="flex items-center gap-2">
 				<ArrowLeftIcon class="h-5 w-5" />
