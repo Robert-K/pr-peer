@@ -6,6 +6,6 @@
 
 <ModeWatcher />
 
-<div class="flex min-h-screen flex-col p-4">
+<div class="flex h-screen max-h-full w-screen flex-col p-4">
 	{@render children?.()}
 </div>

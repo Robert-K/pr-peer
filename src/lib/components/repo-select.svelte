@@ -1,10 +1,10 @@
 <script lang="ts">
 	import * as Command from '$lib/components/ui/command/index.js';
-	import { searchRepos, type RepoSuggestion } from '$lib/github';
+	import { searchRepos, type Repo } from '$lib/github';
 
-	export let selectedRepo: RepoSuggestion | null = null;
+	export let selectedRepo: Repo | null = null;
 	let query = '';
-	let suggestions: RepoSuggestion[] = [];
+	let suggestions: Repo[] = [];
 	let loading = false;
 
 	let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -14,7 +14,6 @@
 		if (debounceTimeout) clearTimeout(debounceTimeout);
 		debounceTimeout = setTimeout(async () => {
 			loading = true;
-			suggestions = [];
 			try {
 				suggestions = await searchRepos(query);
 			} catch (e) {
@@ -25,7 +24,7 @@
 		}, 200);
 	}
 
-	function selectRepo(repo: RepoSuggestion) {
+	function selectRepo(repo: Repo) {
 		selectedRepo = repo;
 		query = repo.full_name;
 		suggestions = [];
@@ -38,6 +37,7 @@
 			placeholder="Search for a repository..."
 			bind:value={query}
 			oninput={(e) => handleCommandInput((e.target as HTMLInputElement).value)}
+			autofocus
 		/>
 		{#if query !== selectedRepo?.full_name}
 			<Command.List>
