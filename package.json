@@ -48,10 +48,11 @@
 	},
 	"dependencies": {
 		"@fontsource/geist": "^5.2.6",
+		"@mistralai/mistralai": "^1.7.2",
 		"@octokit/rest": "^22.0.0",
 		"@octokit/types": "^14.1.0",
-		"svelte-markdown": "^0.4.1",
 		"mode-watcher": "^1.0.8",
-		"openai": "^5.3.0"
+		"openai": "^5.3.0",
+		"svelte-markdown": "^0.4.1"
 	}
 }

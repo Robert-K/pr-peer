@@ -2,6 +2,16 @@ import OpenAI from 'openai';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { writable } from 'svelte/store';
 
+import { Mistral } from "@mistralai/mistralai";
+
+const mistral_token = import.meta.env.VITE_MISTRAL_API_KEY;
+
+const mistral = new Mistral({
+	apiKey: mistral_token,
+});
+
+const USE_CODESPHERE = false;
+
 /*
 Could be helpful:
 https://medium.com/@aleksej.gudkov/llama-cpp-python-examples-a-guide-to-using-llama-models-with-python-1df9ba7a5fcd
@@ -14,25 +24,33 @@ const openai = new OpenAI({
 });
 
 export async function getChatResponse(messages: ChatCompletionMessageParam[]) {
-	try {
-		const response = await openai.chat.completions.create(
-			{
-				model: 'gpt-3.5-turbo',
-				messages: messages,
-				max_tokens: 1000,
-				temperature: 0.7
-			},
-			{
-				headers: {
-					'Access-Control-Allow-Origin': '*'
+	if (USE_CODESPHERE) {
+		try {
+			const response = await openai.chat.completions.create(
+				{
+					model: 'gpt-3.5-turbo',
+					messages: messages,
+					max_tokens: 1000,
+					temperature: 0.7
+				},
+				{
+					headers: {
+						'Access-Control-Allow-Origin': '*'
+					}
+					// method: 'patch'
 				}
-				// method: 'patch'
-			}
-		);
-		return response.choices[0].message.content;
-	} catch (error) {
-		console.error('Error fetching chat response:', error);
-		throw error;
+			);
+			return response.choices[0].message.content;
+		} catch (error) {
+			console.error('Error fetching chat response:', error);
+			throw error;
+		}
+	} else {
+		return (await mistral.chat.complete({
+			model: "mistral-small-latest",
+			// @ts-expect-error chatgpt messages for mistral
+			messages: messages,
+		})).choices[0].message.content;
 	}
 }
 
@@ -67,5 +85,3 @@ export function getChatResponseStreamed(messages: ChatCompletionMessageParam[]) 
 	})();
 	return responseStore;
 }
-
-// v1

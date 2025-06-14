@@ -119,13 +119,3 @@
 		{/if}
 	</Command.List>
 </Command.Root>
-{#if selectedPr}
-	<div class="mt-4 rounded border bg-gray-50 p-3 dark:bg-gray-900">
-		<strong>Selected PR:</strong>
-		#{selectedPr.number}
-		{selectedPr.title}
-		{#if selectedPr.body}
-			<div class="text-xs text-gray-500">{selectedPr.body}</div>
-		{/if}
-	</div>
-{/if}
