@@ -1,7 +1,8 @@
 <script lang="ts">
 	import DarkModeToggle from '$lib/components/dark-mode-toggle.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import RepoSelect, { type RepoSuggestion } from '$lib/components/repo-select.svelte';
+	import RepoSelect from '$lib/components/repo-select.svelte';
+	import type RepoSuggestion from '$lib/components/repo-select.svelte';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 
 	let selectedRepo: RepoSuggestion | null = null;

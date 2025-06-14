@@ -1,50 +1,27 @@
-<script context="module" lang="ts">
-	import type { Endpoints } from '@octokit/types';
-
-	export type RepoSuggestion = Pick<
-		Endpoints['GET /search/repositories']['response']['data']['items'][0],
-		'full_name' | 'description'
-	>;
-</script>
-
 <script lang="ts">
 	import * as Command from '$lib/components/ui/command/index.js';
-	import { Octokit } from '@octokit/rest';
+	import { searchRepos, type RepoSuggestion } from '$lib/github';
 
 	export let selectedRepo: RepoSuggestion | null = null;
 	let query = '';
 	let suggestions: RepoSuggestion[] = [];
 	let loading = false;
 
-	const token = import.meta.env.VITE_GITHUB_TOKEN;
-	const octokit = token ? new Octokit({ auth: token }) : new Octokit();
-
-	async function searchRepos(q: string) {
-		if (!q) {
-			suggestions = [];
-			return;
-		}
-		loading = true;
-		try {
-			const res = await octokit.search.repos({ q, per_page: 5 });
-			suggestions = res.data.items.map((repo) => ({
-				full_name: repo.full_name,
-				description: repo.description || ''
-			}));
-		} catch (e) {
-			suggestions = [];
-		} finally {
-			loading = false;
-		}
-	}
-
 	let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
 
-	function handleCommandInput(val: string) {
+	async function handleCommandInput(val: string) {
 		query = val;
 		if (debounceTimeout) clearTimeout(debounceTimeout);
-		debounceTimeout = setTimeout(() => {
-			searchRepos(query);
+		debounceTimeout = setTimeout(async () => {
+			loading = true;
+			suggestions = [];
+			try {
+				suggestions = await searchRepos(query);
+			} catch (e) {
+				suggestions = [];
+			} finally {
+				loading = false;
+			}
 		}, 200);
 	}
 
