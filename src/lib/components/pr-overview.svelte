@@ -16,6 +16,7 @@
 	import * as Diff2Html from 'diff2html';
 	import 'diff2html/bundles/css/diff2html.min.css';
 	import { Slider } from '$lib/components/ui/slider/index.js';
+	import { mode } from 'mode-watcher';
 
 	export let pr: SearchIssue;
 	export let repoFullName: string;
@@ -146,10 +147,14 @@ You must only respond with the number, no other text, introduction or explanatio
 				>
 				<div class="flex-grow"></div>
 				{#if pr.user}
-					<div class="flex flex-row items-center gap-2 text-sm">
+					<button
+						class="flex cursor-pointer flex-row items-center gap-2 text-sm"
+						onclick={() =>
+							window.open(`https://github.com/${pr.user!.login}`, '_blank', 'noopener')}
+					>
 						<div>{pr.user.login}</div>
 						<img src={pr.user.avatar_url} alt="Avatar" class="h-6 w-6 rounded-full" />
-					</div>
+					</button>
 				{/if}
 			</div>
 			{#if pr.labels && pr.labels.length > 0}
@@ -167,53 +172,67 @@ You must only respond with the number, no other text, introduction or explanatio
 				</div>
 			{/if}
 		</div>
-		<Card class="flex min-h-16 gap-2 p-4 shadow">
-			<div class="flex min-h-12 items-center gap-2">
-				<h2 class="text-xl font-bold">AI Assessment</h2>
-				{#if aiRisk != -1}
-					<span
-						class="rounded border px-2 py-0.5 text-xs font-semibold"
-						style="background-color: {getRiskColor(aiRisk)}cc; color: {getContrastColor(
-							getRiskColor(aiRisk) + 'cc'
-						)}; border-color: {getRiskColor(aiRisk)}33;"
-					>
-						Risk: {aiRisk} / 10
-					</span>
-				{/if}
-				{#if aiComplexity != -1}
-					<span
-						class="rounded border px-2 py-0.5 text-xs font-semibold"
-						style="background-color: {getRiskColor(aiComplexity)}cc; color: {getContrastColor(
-							getRiskColor(aiComplexity) + 'cc'
-						)}; border-color: {getRiskColor(aiComplexity)}33;"
-					>
-						Complexity: {aiComplexity} / 10
-					</span>
-				{/if}
-				{#if aiSeniority != -1}
-					<div class="flex flex-grow flex-row items-center gap-2 p-2 text-gray-500">
-						<div>Junior</div>
-						<Slider
-							disabled
-							type="single"
-							value={aiSeniority}
-							max={100}
-							step={1}
-							class="flex-grow"
-						/>
-						<div>Senior</div>
+		<div class="flex flex-row gap-4">
+			<Card class="flex min-h-16 flex-grow gap-2 p-4 shadow">
+				<div class="flex min-h-12 items-center gap-2">
+					<h2 class="text-xl font-bold">AI Assessment</h2>
+					{#if aiRisk != -1}
+						<span
+							class="rounded border px-2 py-0.5 text-xs font-semibold"
+							style="background-color: {getRiskColor(aiRisk)}cc; color: {getContrastColor(
+								getRiskColor(aiRisk) + 'cc'
+							)}; border-color: {getRiskColor(aiRisk)}33;"
+						>
+							Risk: {aiRisk} / 10
+						</span>
+					{/if}
+					{#if aiComplexity != -1}
+						<span
+							class="rounded border px-2 py-0.5 text-xs font-semibold"
+							style="background-color: {getRiskColor(aiComplexity)}cc; color: {getContrastColor(
+								getRiskColor(aiComplexity) + 'cc'
+							)}; border-color: {getRiskColor(aiComplexity)}33;"
+						>
+							Complexity: {aiComplexity} / 10
+						</span>
+					{/if}
+					{#if aiSeniority != -1}
+						<div class="flex flex-grow flex-row items-center gap-2 p-2 text-gray-500">
+							<div>Junior</div>
+							<Slider
+								disabled
+								type="single"
+								value={aiSeniority}
+								max={100}
+								step={1}
+								class="flex-grow"
+							/>
+							<div>Senior</div>
+						</div>
+					{/if}
+				</div>
+				{#if aiSummary}
+					<SvelteMarkdown source={aiSummary ?? ''} />
+				{:else}
+					<div class="flex flex-grow animate-pulse items-center justify-center text-gray-500">
+						<SparkleIcon size={16} class="mr-2" />
+						<p class="italic">Generating...</p>
 					</div>
 				{/if}
-			</div>
-			{#if aiSummary}
-				<SvelteMarkdown source={aiSummary ?? ''} />
-			{:else}
-				<div class="flex flex-grow animate-pulse items-center justify-center text-gray-500">
-					<SparkleIcon size={16} class="mr-2" />
-					<p class="italic">Generating...</p>
-				</div>
+			</Card>
+			{#if pr.user}
+				<Card class="flex w-100 max-w-100 min-w-100 flex-shrink gap-2 p-0 shadow">
+					<div class="flex flex-row items-center px-4 pt-4">
+						<div class="flex min-h-12 flex-row items-center text-xl font-bold">Author Rank</div>
+					</div>
+					<img
+						alt="User stats"
+						class="w-full rounded-xl"
+						src={`https://github-readme-stats.vercel.app/api?username=${pr.user!.login}${mode.current != 'light' ? '&theme=github_dark' : ''}&hide_border=true&hide_title=true&bg_color=00000000&show_icons=true`}
+					/>
+				</Card>
 			{/if}
-		</Card>
+		</div>
 		<p class="text-sm [&_a]:text-blue-600 [&_a]:underline dark:[&_a]:text-blue-400">
 			<SvelteMarkdown source={pr.body ?? ''} />
 		</p>

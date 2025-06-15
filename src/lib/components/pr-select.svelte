@@ -95,10 +95,14 @@
 							>
 							<div class="flex-grow"></div>
 							{#if pr.user}
-								<div class="flex flex-row items-center gap-2 text-sm opacity-40">
+								<button
+									class="flex cursor-pointer flex-row items-center gap-2 text-sm opacity-40"
+									onclick={() =>
+										window.open(`https://github.com/${pr.user!.login}`, '_blank', 'noopener')}
+								>
 									<div>{pr.user.login}</div>
 									<img src={pr.user.avatar_url} alt="Avatar" class="h-6 w-6 rounded-full" />
-								</div>
+								</button>
 							{/if}
 						</div>
 						<div class="gap-2">

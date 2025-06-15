@@ -7,9 +7,9 @@ export type SearchIssue = Endpoints['GET /search/issues']['response']['data']['i
 const token = import.meta.env.VITE_GITHUB_TOKEN;
 export const octokit = token ? new Octokit({ auth: token }) : new Octokit();
 
-export async function searchRepos(q: string, per_page = 5): Promise<Repo[]> {
+export async function searchRepos(q: string, per_page = 25): Promise<Repo[]> {
 	if (!q) return [];
-	const res = await octokit.search.repos({ q, per_page });
+	const res = await octokit.search.repos({ q: `${q}+sort:stars&order:desc`, per_page });
 	return res.data.items;
 }
 
