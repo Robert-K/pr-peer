@@ -40,18 +40,19 @@ export async function getChatResponse(messages: ChatCompletionMessageParam[]) {
 					// method: 'patch'
 				}
 			);
-			return response.choices[0].message.content;
+			return response.choices[0].message.content as string;
 		} catch (error) {
 			console.error('Error fetching chat response:', error);
-			throw error;
+			return error as string;
 		}
 	} else {
 		return (await mistral.chat.complete({
 			model: "mistral-small-latest",
 			// @ts-expect-error chatgpt messages for mistral
 			messages: messages,
-		})).choices[0].message.content;
+		})).choices[0].message.content as string;
 	}
+	return '';
 }
 
 export function getChatResponseStreamed(messages: ChatCompletionMessageParam[]) {

@@ -5,7 +5,7 @@ export type Repo = Endpoints['GET /search/repositories']['response']['data']['it
 export type SearchIssue = Endpoints['GET /search/issues']['response']['data']['items'][0];
 
 const token = import.meta.env.VITE_GITHUB_TOKEN;
-const octokit = token ? new Octokit({ auth: token }) : new Octokit();
+export const octokit = token ? new Octokit({ auth: token }) : new Octokit();
 
 export async function searchRepos(q: string, per_page = 5): Promise<Repo[]> {
 	if (!q) return [];

@@ -51,6 +51,8 @@
 		"@mistralai/mistralai": "^1.7.2",
 		"@octokit/rest": "^22.0.0",
 		"@octokit/types": "^14.1.0",
+		"@types/diff2html": "^3.0.3",
+		"diff2html": "^3.4.51",
 		"mode-watcher": "^1.0.8",
 		"openai": "^5.3.0",
 		"svelte-markdown": "^0.4.1"

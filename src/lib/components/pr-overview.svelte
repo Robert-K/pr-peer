@@ -11,31 +11,30 @@
 	import { type Writable } from 'svelte/store';
 	import type { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 	import ScrollArea from './ui/scroll-area/scroll-area.svelte';
+	import { responseBodyFromJSON } from '@mistralai/mistralai/models/operations';
+	// @ts-expect-error idc
+	import * as Diff2Html from 'diff2html';
+	import 'diff2html/bundles/css/diff2html.min.css';
 
 	export let pr: SearchIssue;
 	export let repoFullName: string;
 
 	let aiSummary = '';
 	let aiSummaryStore: Writable<string>;
+	let prDiff = '';
 
-	// 	onMount(() => {
-	// 		aiSummaryStore = getChatResponseStreamed([
-	// 			{
-	// 				role: 'user',
-	// 				content: `Your task is to summarize the following GitHub pull request in a maximum of 2-3 sentences for a developer:
+	async function fetchDiff(url: string): Promise<string> {
+		const res = await fetch('https://corsproxy.io/?url=' + url);
+		if (!res.ok) return '';
+		const text = await res.text();
+		console.log(text);
+		return text;
+	}
 
-	// Title: ${pr.title}
-
-	// Body: ${pr.body || ''}
-
-	// You must only respond with the summary, no other text, introduction or explanation.`
-	// 			}
-	// 		]);
-	// 		aiSummaryStore.subscribe((val: string) => {
-	// 			aiSummary = val;
-	// 		});
-	// 	});
 	onMount(async () => {
+		if (pr.pull_request?.diff_url) {
+			prDiff = await fetchDiff(pr.pull_request.diff_url);
+		}
 		aiSummary = (await getChatResponse([
 			{
 				role: 'user',
@@ -45,14 +44,16 @@ Title: ${pr.title}
 
 Body: ${pr.body || ''}
 
+${prDiff ? 'Diff: ' + prDiff : ''}
+
 You must only respond with the summary, no other text, introduction or explanation.`
 			}
 		])) as string;
 	});
 </script>
 
-<ScrollArea class="flex h-0 flex-grow">
-	<div class="flex min-w-3xl flex-col gap-4 p-4">
+<ScrollArea class="flex h-0 w-full flex-grow">
+	<div class="mx-auto flex max-w-6xl min-w-3xl flex-col gap-4 p-4">
 		<div class="flex flex-col gap-1">
 			<div>
 				<Button
@@ -89,7 +90,7 @@ You must only respond with the summary, no other text, introduction or explanati
 				</div>
 			{/if}
 		</div>
-		<Card class="flex min-h-16 p-4 transition-all">
+		<Card class="flex min-h-16 p-4 shadow">
 			{#if aiSummary}
 				<SvelteMarkdown source={aiSummary} />
 			{:else}
@@ -102,5 +103,18 @@ You must only respond with the summary, no other text, introduction or explanati
 		<p class="text-sm [&_a]:text-blue-600 [&_a]:underline dark:[&_a]:text-blue-400">
 			<SvelteMarkdown source={pr.body} />
 		</p>
+		{#if prDiff}
+			<Card class="max-h-200 min-h-16 bg-white p-4 text-black shadow">
+				<ScrollArea class="max-size-full size-full overflow-y-scroll">
+					<div>
+						{@html Diff2Html.html(prDiff, {
+							drawFileList: true,
+							matching: 'lines',
+							outputFormat: 'side-by-side'
+						})}
+					</div>
+				</ScrollArea>
+			</Card>
+		{/if}
 	</div>
 </ScrollArea>
