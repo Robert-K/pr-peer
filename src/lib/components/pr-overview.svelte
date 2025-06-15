@@ -40,10 +40,12 @@
 		if (pr.pull_request?.diff_url) {
 			prDiff = await fetchDiff(pr.pull_request.diff_url);
 		}
-		aiSummary = (await getChatResponse([
-			{
-				role: 'user',
-				content: `Your task is to summarize the following GitHub pull request in a maximum of 2-3 sentences for a developer:
+
+		const [summary, riskResponse, complexityResponse, seniorityResponse] = await Promise.all([
+			getChatResponse([
+				{
+					role: 'user',
+					content: `Your task is to summarize the following GitHub pull request for a developer:
 
 Title: ${pr.title}
 
@@ -51,13 +53,13 @@ Body: ${pr.body || ''}
 
 ${prDiff ? 'Diff: ' + prDiff : ''}
 
-You must only respond with the summary, no other text, introduction or explanation.`
-			}
-		])) as string;
-		const riskResponse = (await getChatResponse([
-			{
-				role: 'user',
-				content: `Your task is to assess the risk level of the following GitHub pull request and provide a single integer number between 0 and 10:
+You must only respond with the short summary (maximum 2-3 sentences), no other text, introduction or explanation. Use markdown formatting where appropriate.`
+				}
+			]),
+			getChatResponse([
+				{
+					role: 'user',
+					content: `Your task is to assess the risk level of the following GitHub pull request and provide a single integer number between 0 and 10:
 
 Title: ${pr.title}
 
@@ -66,52 +68,53 @@ Body: ${pr.body || ''}
 ${prDiff ? 'Diff: ' + prDiff : ''}
 
 You must only respond with the number, no other text, introduction or explanation.`
-			}
-		])) as string;
+				}
+			]),
+			getChatResponse([
+				{
+					role: 'user',
+					content: `Your task is to assess the complexity level of the following GitHub pull request and provide a single integer number between 0 and 10:
 
-		let riskNum = parseInt(riskResponse);
+Title: ${pr.title}
+
+Body: ${pr.body || ''}
+
+${prDiff ? 'Diff: ' + prDiff : ''}
+
+You must only respond with the number, no other text, introduction or explanation.`
+				}
+			]),
+			getChatResponse([
+				{
+					role: 'user',
+					content: `Your task is to assess the level experience required of the following GitHub pull request and provide a single integer number between 0 and 100, where 0 is a new junior developer and 100 is a senior developer:
+
+Title: ${pr.title}
+
+Body: ${pr.body || ''}
+
+${prDiff ? 'Diff: ' + prDiff : ''}
+
+You must only respond with the number, no other text, introduction or explanation.`
+				}
+			])
+		]);
+
+		aiSummary = summary as string;
+
+		let riskNum = parseInt(riskResponse as string);
 		if (isNaN(riskNum) || riskNum < 0 || riskNum > 10) {
 			riskNum = 5;
 		}
 		aiRisk = riskNum;
 
-		const complexityResponse = (await getChatResponse([
-			{
-				role: 'user',
-				content: `Your task is to assess the complexity level of the following GitHub pull request and provide a single integer number between 0 and 10:
-
-Title: ${pr.title}
-
-Body: ${pr.body || ''}
-
-${prDiff ? 'Diff: ' + prDiff : ''}
-
-You must only respond with the number, no other text, introduction or explanation.`
-			}
-		])) as string;
-
-		let complexityNum = parseInt(complexityResponse);
+		let complexityNum = parseInt(complexityResponse as string);
 		if (isNaN(complexityNum) || complexityNum < 0 || complexityNum > 10) {
 			complexityNum = 5;
 		}
 		aiComplexity = complexityNum;
 
-		const seniorityResponse = (await getChatResponse([
-			{
-				role: 'user',
-				content: `Your task is to assess the level experience required of the following GitHub pull request and provide a single integer number between 0 and 100, where 0 is a new junior developer and 100 is a senior developer:
-
-Title: ${pr.title}
-
-Body: ${pr.body || ''}
-
-${prDiff ? 'Diff: ' + prDiff : ''}
-
-You must only respond with the number, no other text, introduction or explanation.`
-			}
-		])) as string;
-
-		let seniorityNum = parseInt(seniorityResponse);
+		let seniorityNum = parseInt(seniorityResponse as string);
 		if (isNaN(seniorityNum) || seniorityNum < 0 || seniorityNum > 100) {
 			seniorityNum = 50;
 		}
@@ -207,7 +210,7 @@ You must only respond with the number, no other text, introduction or explanatio
 			{:else}
 				<div class="flex flex-grow animate-pulse items-center justify-center text-gray-500">
 					<SparkleIcon size={16} class="mr-2" />
-					<p class="italic">Generating summary...</p>
+					<p class="italic">Generating...</p>
 				</div>
 			{/if}
 		</Card>
