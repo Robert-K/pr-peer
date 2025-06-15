@@ -1,3 +1,14 @@
+// Returns a color from blue (low risk) to red (high risk) for a value between `from` and `to` (defaults 0-10)
+export function getRiskColor(value: number, from = 0, to = 10): string {
+	const clampedValue = Math.max(from, Math.min(to, value));
+	const range = to - from;
+	const ratio = range === 0 ? 0 : (clampedValue - from) / range;
+	const r = Math.round(0 + ratio * 255);
+	const g = Math.round(0 + (1 - ratio) * 128);
+	const b = Math.round(255 - ratio * 255);
+	return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
 export function getContrastColor(hex: string) {
 	hex = hex.replace('#', '');
 	if (hex.length === 3) {

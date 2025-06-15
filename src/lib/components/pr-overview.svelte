@@ -2,7 +2,7 @@
 	import type { SearchIssue } from '$lib/github';
 	import Button from './ui/button/button.svelte';
 	import { timeAgo } from '$lib/github';
-	import { getContrastColor } from '$lib/utils/color';
+	import { getContrastColor, getRiskColor } from '$lib/utils/color';
 	import SvelteMarkdown from 'svelte-markdown';
 	import Card from './ui/card/card.svelte';
 	import { SparkleIcon } from '@lucide/svelte';
@@ -15,11 +15,15 @@
 	// @ts-expect-error idc
 	import * as Diff2Html from 'diff2html';
 	import 'diff2html/bundles/css/diff2html.min.css';
+	import { Slider } from '$lib/components/ui/slider/index.js';
 
 	export let pr: SearchIssue;
 	export let repoFullName: string;
 
 	let aiSummary = '';
+	let aiRisk = -1;
+	let aiComplexity = -1;
+	let aiSeniority = -1;
 	let aiSummaryStore: Writable<string>;
 	let prDiff = '';
 
@@ -49,13 +53,75 @@ ${prDiff ? 'Diff: ' + prDiff : ''}
 You must only respond with the summary, no other text, introduction or explanation.`
 			}
 		])) as string;
+		const riskResponse = (await getChatResponse([
+			{
+				role: 'user',
+				content: `Your task is to assess the risk level of the following GitHub pull request and provide a single integer number between 0 and 10:
+
+Title: ${pr.title}
+
+Body: ${pr.body || ''}
+
+${prDiff ? 'Diff: ' + prDiff : ''}
+
+You must only respond with the number, no other text, introduction or explanation.`
+			}
+		])) as string;
+
+		let riskNum = parseInt(riskResponse);
+		if (isNaN(riskNum) || riskNum < 0 || riskNum > 10) {
+			riskNum = 5;
+		}
+		aiRisk = riskNum;
+
+		const complexityResponse = (await getChatResponse([
+			{
+				role: 'user',
+				content: `Your task is to assess the complexity level of the following GitHub pull request and provide a single integer number between 0 and 10:
+
+Title: ${pr.title}
+
+Body: ${pr.body || ''}
+
+${prDiff ? 'Diff: ' + prDiff : ''}
+
+You must only respond with the number, no other text, introduction or explanation.`
+			}
+		])) as string;
+
+		let complexityNum = parseInt(complexityResponse);
+		if (isNaN(complexityNum) || complexityNum < 0 || complexityNum > 10) {
+			complexityNum = 5;
+		}
+		aiComplexity = complexityNum;
+
+		const seniorityResponse = (await getChatResponse([
+			{
+				role: 'user',
+				content: `Your task is to assess the level experience required of the following GitHub pull request and provide a single integer number between 0 and 100, where 0 is a new junior developer and 100 is a senior developer:
+
+Title: ${pr.title}
+
+Body: ${pr.body || ''}
+
+${prDiff ? 'Diff: ' + prDiff : ''}
+
+You must only respond with the number, no other text, introduction or explanation.`
+			}
+		])) as string;
+
+		let seniorityNum = parseInt(seniorityResponse);
+		if (isNaN(seniorityNum) || seniorityNum < 0 || seniorityNum > 100) {
+			seniorityNum = 50;
+		}
+		aiSeniority = seniorityNum;
 	});
 </script>
 
 <ScrollArea class="flex h-0 w-full flex-grow">
 	<div class="mx-auto flex max-w-6xl min-w-3xl flex-col gap-4 p-4">
 		<div class="flex flex-col gap-1">
-			<div>
+			<div class="flex items-center gap-1">
 				<Button
 					class="h-6 font-mono font-bold hover:underline"
 					variant="secondary"
@@ -90,7 +156,44 @@ You must only respond with the summary, no other text, introduction or explanati
 				</div>
 			{/if}
 		</div>
-		<Card class="flex min-h-16 p-4 shadow">
+		<Card class="flex min-h-16 gap-2 p-4 shadow">
+			<div class="flex min-h-12 items-center gap-2">
+				<h2 class="text-xl font-bold">AI Assessment</h2>
+				{#if aiRisk != -1}
+					<span
+						class="rounded border px-2 py-0.5 text-xs font-semibold"
+						style="background-color: {getRiskColor(aiRisk)}cc; color: {getContrastColor(
+							getRiskColor(aiRisk) + 'cc'
+						)}; border-color: {getRiskColor(aiRisk)}33;"
+					>
+						Risk: {aiRisk} / 10
+					</span>
+				{/if}
+				{#if aiComplexity != -1}
+					<span
+						class="rounded border px-2 py-0.5 text-xs font-semibold"
+						style="background-color: {getRiskColor(aiComplexity)}cc; color: {getContrastColor(
+							getRiskColor(aiComplexity) + 'cc'
+						)}; border-color: {getRiskColor(aiComplexity)}33;"
+					>
+						Complexity: {aiComplexity} / 10
+					</span>
+				{/if}
+				{#if aiSeniority != -1}
+					<div class="flex flex-grow flex-row items-center gap-2 p-2 text-gray-500">
+						<div>Junior</div>
+						<Slider
+							disabled
+							type="single"
+							value={aiSeniority}
+							max={100}
+							step={1}
+							class="flex-grow"
+						/>
+						<div>Senior</div>
+					</div>
+				{/if}
+			</div>
 			{#if aiSummary}
 				<SvelteMarkdown source={aiSummary} />
 			{:else}
