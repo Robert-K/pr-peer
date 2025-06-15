@@ -176,6 +176,12 @@ You must only respond with the number, no other text, introduction or explanatio
 			<Card class="flex min-h-16 flex-grow gap-2 p-4 shadow">
 				<div class="flex min-h-12 items-center gap-2">
 					<h2 class="text-xl font-bold">AI Assessment</h2>
+					{#if !aiSummary}
+						<div class="flex animate-pulse flex-row items-center justify-center text-gray-500">
+							<SparkleIcon size={16} class="mr-2" />
+							<p class="italic">Generating...</p>
+						</div>
+					{/if}
 					{#if aiRisk != -1}
 						<span
 							class="rounded border px-2 py-0.5 text-xs font-semibold"
@@ -213,11 +219,6 @@ You must only respond with the number, no other text, introduction or explanatio
 				</div>
 				{#if aiSummary}
 					<SvelteMarkdown source={aiSummary ?? ''} />
-				{:else}
-					<div class="flex flex-grow animate-pulse items-center justify-center text-gray-500">
-						<SparkleIcon size={16} class="mr-2" />
-						<p class="italic">Generating...</p>
-					</div>
 				{/if}
 			</Card>
 			{#if pr.user}
