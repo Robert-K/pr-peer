@@ -36,6 +36,7 @@
 	}
 
 	onMount(async () => {
+		console.log(pr);
 		if (pr.pull_request?.diff_url) {
 			prDiff = await fetchDiff(pr.pull_request.diff_url);
 		}
@@ -137,9 +138,16 @@ You must only respond with the number, no other text, introduction or explanatio
 				>
 					#{pr.number}
 				</Button>
-				<div class="inline-block font-semibold"><SvelteMarkdown source={pr.title} /></div>
+				<div class="inline-block font-semibold"><SvelteMarkdown source={pr.title ?? ''} /></div>
 				<span class="ml-2 text-xs text-gray-500">{pr.created_at ? timeAgo(pr.created_at) : ''}</span
 				>
+				<div class="flex-grow"></div>
+				{#if pr.user}
+					<div class="flex flex-row items-center gap-2 text-sm">
+						<div>{pr.user.login}</div>
+						<img src={pr.user.avatar_url} alt="Avatar" class="h-6 w-6 rounded-full" />
+					</div>
+				{/if}
 			</div>
 			{#if pr.labels && pr.labels.length > 0}
 				<div class="mt-2 flex flex-wrap gap-1">
@@ -195,7 +203,7 @@ You must only respond with the number, no other text, introduction or explanatio
 				{/if}
 			</div>
 			{#if aiSummary}
-				<SvelteMarkdown source={aiSummary} />
+				<SvelteMarkdown source={aiSummary ?? ''} />
 			{:else}
 				<div class="flex flex-grow animate-pulse items-center justify-center text-gray-500">
 					<SparkleIcon size={16} class="mr-2" />
@@ -204,7 +212,7 @@ You must only respond with the number, no other text, introduction or explanatio
 			{/if}
 		</Card>
 		<p class="text-sm [&_a]:text-blue-600 [&_a]:underline dark:[&_a]:text-blue-400">
-			<SvelteMarkdown source={pr.body} />
+			<SvelteMarkdown source={pr.body ?? ''} />
 		</p>
 		{#if prDiff}
 			<Card class="max-h-200 min-h-16 bg-white p-4 text-black shadow">

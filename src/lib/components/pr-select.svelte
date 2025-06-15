@@ -71,7 +71,7 @@
 			<Command.Group heading="Pull Requests">
 				{#each suggestions as pr}
 					<Command.Item class="flex flex-col items-start" onSelect={() => selectPr(pr)}>
-						<div class="flex flex-wrap items-center gap-1">
+						<div class="flex w-full flex-wrap items-center gap-1">
 							<Button
 								class="h-6 font-mono font-bold hover:underline"
 								variant="secondary"
@@ -87,10 +87,19 @@
 							>
 								#{pr.number}
 							</Button>
-							<div class="inline-block font-semibold"><SvelteMarkdown source={pr.title} /></div>
+							<div class="inline-block font-semibold">
+								<SvelteMarkdown source={pr.title ?? ''} />
+							</div>
 							<span class="ml-2 text-xs text-gray-500"
 								>{pr.created_at ? timeAgo(pr.created_at) : ''}</span
 							>
+							<div class="flex-grow"></div>
+							{#if pr.user}
+								<div class="flex flex-row items-center gap-2 text-sm opacity-40">
+									<div>{pr.user.login}</div>
+									<img src={pr.user.avatar_url} alt="Avatar" class="h-6 w-6 rounded-full" />
+								</div>
+							{/if}
 						</div>
 						<div class="gap-2">
 							{#if pr.labels && pr.labels.length > 0}
