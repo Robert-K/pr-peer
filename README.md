@@ -47,3 +47,5 @@ Requirements:
    pnpm run dev
    ```
 4. Open your browser and navigate to `http://localhost:80` (or the port shown in your terminal).
+
+[![forthebadge](https://forthebadge.com/images/featured/featured-built-with-love.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/featured/featured-uses-badges.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)](https://forthebadge.com)
