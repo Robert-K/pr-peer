@@ -233,17 +233,23 @@ You must only respond with the number, no other text, introduction or explanatio
 				</Card>
 			{/if}
 		</div>
-		<p class="text-sm [&_a]:text-blue-600 [&_a]:underline dark:[&_a]:text-blue-400">
-			<SvelteMarkdown source={pr.body ?? ''} />
-		</p>
+		<div class="p-4">
+			<div class="flex flex-row items-center">
+				<div class="flex min-h-12 flex-row items-center text-xl font-bold">Description</div>
+			</div>
+			<p class="text-sm [&_a]:text-blue-600 [&_a]:underline dark:[&_a]:text-blue-400">
+				<SvelteMarkdown source={pr.body ?? ''} />
+			</p>
+		</div>
 		{#if prDiff}
-			<Card class="max-h-200 min-h-16 bg-white p-4 text-black shadow">
+			<Card class="max-h-200 min-h-16 shadow">
 				<ScrollArea class="max-size-full size-full overflow-y-scroll">
-					<div>
+					<div class="px-4">
 						{@html Diff2Html.html(prDiff, {
 							drawFileList: true,
 							matching: 'lines',
-							outputFormat: 'side-by-side'
+							outputFormat: 'side-by-side',
+							colorScheme: mode.current
 						})}
 					</div>
 				</ScrollArea>
