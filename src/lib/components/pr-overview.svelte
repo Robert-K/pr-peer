@@ -12,7 +12,6 @@
 	import type { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 	import ScrollArea from './ui/scroll-area/scroll-area.svelte';
 	import { responseBodyFromJSON } from '@mistralai/mistralai/models/operations';
-	// @ts-expect-error idc
 	import * as Diff2Html from 'diff2html';
 	import 'diff2html/bundles/css/diff2html.min.css';
 	import { Slider } from '$lib/components/ui/slider/index.js';
@@ -250,6 +249,7 @@ You must only respond with the number, no other text, introduction or explanatio
 							drawFileList: true,
 							matching: 'lines',
 							outputFormat: 'side-by-side',
+							// @ts-expect-error idc
 							colorScheme: mode.current
 						})}
 					</div>
