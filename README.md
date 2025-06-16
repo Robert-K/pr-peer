@@ -4,6 +4,8 @@ Code review at a glance.
 
 PR Peer is an AI-powered tool designed to significantly speed up the code review process.
 
+![Screenshot 2025-06-15 142541](https://github.com/user-attachments/assets/ecdccd58-801b-453e-bea1-a386672e5ac8)
+
 ## Core Features
 
 - Review any pull request in a matter of seconds, no matter the language
